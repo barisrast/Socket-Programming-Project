@@ -69,7 +69,6 @@ namespace Client
                     {
 
                         connect_button.Enabled = false;
-                        username_textbox.Enabled = true;
                         logs.Enabled = true;
                         disconnect_button.Enabled = true;
                         post_textbox.Enabled = true;
@@ -77,7 +76,7 @@ namespace Client
                         post_Send_Button.Enabled = true;
 
                         connected = true;
-                        logs.AppendText("Hello! You are connected to the server.\n");
+                        logs.AppendText("Hello! " + username_textbox.Text + " You are connected to the server.\n");
                         Thread receiveThread = new Thread(Receive);
                         receiveThread.Start();
 
@@ -89,6 +88,7 @@ namespace Client
                 catch
                 {
                     logs.AppendText("Could not connect to the server!\n");
+
                 }
             }
             else
@@ -126,12 +126,13 @@ namespace Client
                     if (!terminating)
                     {
                         logs.AppendText("The server has disconnected!\n");
+
                         connect_button.Enabled = true;
                         logs.Enabled = false;
-                        
-                        username_textbox.Enabled = false;
-                       
                         disconnect_button.Enabled = false;
+                        post_Send_Button.Enabled = false;
+                        post_textbox.Enabled = false;
+                        all_posts_button.Enabled = false;
                     }
 
                     clientSocket.Close();
@@ -146,11 +147,14 @@ namespace Client
             clientSocket.Close();
             connected = false;
             logs.AppendText("Successfully disconnected.\n");
+
             disconnect_button.Enabled = false;
             connect_button.Enabled = true;
-            logs.Enabled = false;
-            
-            username_textbox.Enabled = false;
+            logs.Enabled = false;     
+            post_Send_Button.Enabled = false;
+            post_textbox.Enabled = false;
+            all_posts_button.Enabled = false;
+
             
         }
 
@@ -184,6 +188,13 @@ namespace Client
             Byte[] sendCodeBuffer = new byte[1024];
             sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
             clientSocket.Send(sendCodeBuffer);
+
+            
+            string sendUsernameString = username_textbox.Text;
+            logs.AppendText(sendUsernameString);
+            Byte[] sendUsernameBuffer = new byte[1024];
+            sendCodeBuffer = Encoding.Default.GetBytes(sendUsernameString);
+            clientSocket.Send(sendUsernameBuffer);
 
         }
     }

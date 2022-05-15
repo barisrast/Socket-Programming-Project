@@ -85,7 +85,7 @@ namespace Server
                         usernameResponseBuffer = Encoding.Default.GetBytes(usernameResponseString);
                         newClient.Send(usernameResponseBuffer);
 
-                        server_logs.AppendText("A client has connected!\n");
+                        server_logs.AppendText(incomingUsername + " has connected!\n");
 
                         clientSockets.Add(newClient);
 
@@ -129,7 +129,7 @@ namespace Server
             {
                 try
                 {
-                    Byte[] buffer = new Byte[1024];
+                    Byte[] buffer = new Byte[64];
                     thisClient.Receive(buffer);
 
                     string incomingMessage = Encoding.Default.GetString(buffer);
@@ -143,9 +143,6 @@ namespace Server
 
                         string incomingPostMessage = Encoding.Default.GetString(sendBuffer);
                         incomingPostMessage = incomingPostMessage.Substring(0, incomingPostMessage.IndexOf("\0"));
-
-
-
                         string[] incomingWords = incomingPostMessage.Split('$');
                         string usernameString = incomingWords[0];
                         string postString = incomingWords[1];
@@ -158,7 +155,7 @@ namespace Server
                         {
                             char[] delimeters = { '|', '|' };
                             string[] lineWords = line.Split(delimeters);
-                            string postID = lineWords[1];
+                            string postID = lineWords[2];
                             int postIDNum = int.Parse(postID);
 
                             if (postIDNum > max)
@@ -184,6 +181,12 @@ namespace Server
                     }
                     else if (incomingMessage == "ALLP")
                     {
+                        Byte[] usernameAllPostsBuffer = new Byte[1024];
+                        thisClient.Receive(usernameAllPostsBuffer);
+                        string incomingAllPostsUsername = Encoding.Default.GetString(usernameAllPostsBuffer);
+                        incomingAllPostsUsername = incomingAllPostsUsername.Substring(0, incomingAllPostsUsername.IndexOf("\0"));
+
+
                         foreach (string line in File.ReadLines("../../post-db.txt", Encoding.UTF8))
                         {
                             char[] delimeters = { '|', '|' };
@@ -195,12 +198,14 @@ namespace Server
                             string postTimeToken = lineWords[6];
 
 
+                            if (usernameToken != incomingAllPostsUsername)
+                            {
+                                string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n";
 
-                            string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n";
-
-                            Byte[] sendBuffer = new Byte[1000000];
-                            sendBuffer = Encoding.Default.GetBytes(postMessageString);
-                            thisClient.Send(sendBuffer);
+                                Byte[] sendBuffer = new Byte[1000000];
+                                sendBuffer = Encoding.Default.GetBytes(postMessageString);
+                                thisClient.Send(sendBuffer);
+                            }
                         }
                     }
 
