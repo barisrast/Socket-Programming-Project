@@ -72,7 +72,7 @@ namespace Server
                     string incomingUsername = Encoding.Default.GetString(usernameBuffer);
                     incomingUsername = incomingUsername.Substring(0, incomingUsername.IndexOf("\0"));
 
-                    bool usernameExists = File.ReadAllText(@"../../database.txt").Contains(incomingUsername);
+                    bool usernameExists = File.ReadAllText(@"../../user-db.txt").Contains(incomingUsername);
 
                     Byte[] usernameResponseBuffer = new Byte[64];
                     string usernameResponseString = "";
@@ -153,12 +153,8 @@ namespace Server
                         DateTime now = DateTime.Now;
                         now.ToString("F");
 
-                        
-
-
-
                         int max = 0; 
-                        foreach (string line in File.ReadLines("../../postsDatabase.txt", Encoding.UTF8))
+                        foreach (string line in File.ReadLines("../../post-db.txt", Encoding.UTF8))
                         {
                             char[] delimeters = { '|', '|' };
                             string[] lineWords = line.Split(delimeters);
@@ -180,35 +176,32 @@ namespace Server
 
                         server_logs.AppendText(finalLine);
 
-                        using (StreamWriter file = new StreamWriter("../../postsDatabase.txt", append: true))
+                        using (StreamWriter file = new StreamWriter("../../post-db.txt", append: true))
                         {
                             file.WriteLine(finalLine);
                         }
 
-
-
-
-
                     }
                     else if (incomingMessage == "ALLP")
                     {
-                        foreach (string line in File.ReadLines("../../postsDatabase.txt", Encoding.UTF8))
+                        foreach (string line in File.ReadLines("../../post-db.txt", Encoding.UTF8))
                         {
                             char[] delimeters = { '|', '|' };
                             string[] lineWords = line.Split(delimeters);
-                            string postID = lineWords[1];
-                            int postIDNum = int.Parse(postID);
 
-                            
+                            string usernameToken = lineWords[0];
+                            string postIdToken = lineWords[2];
+                            string postTextToken = lineWords[4];
+                            string postTimeToken = lineWords[6];
+
+
+
+                            string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n";
+
+                            Byte[] sendBuffer = new Byte[1000000];
+                            sendBuffer = Encoding.Default.GetBytes(postMessageString);
+                            thisClient.Send(sendBuffer);
                         }
-
-
-
-
-
-                        Byte[] sendBuffer = new Byte[1000000];
-                        thisClient.Send(sendBuffer);
-
                     }
 
 

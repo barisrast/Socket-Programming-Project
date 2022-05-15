@@ -113,7 +113,7 @@ namespace Client
                 try
                 {
 
-                    Byte[] buffer = new Byte[64];
+                    Byte[] buffer = new Byte[10000000];
                     clientSocket.Receive(buffer);
 
                     string incomingMessage = Encoding.Default.GetString(buffer);
@@ -178,5 +178,13 @@ namespace Client
 
         }
 
+        private void all_posts_button_Click(object sender, EventArgs e)
+        {
+            string sendCodeString = "ALLP";
+            Byte[] sendCodeBuffer = new byte[1024];
+            sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
+            clientSocket.Send(sendCodeBuffer);
+
+        }
     }
 }

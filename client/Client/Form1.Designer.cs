@@ -147,6 +147,7 @@
             this.all_posts_button.TabIndex = 18;
             this.all_posts_button.Text = "All Posts";
             this.all_posts_button.UseVisualStyleBackColor = true;
+            this.all_posts_button.Click += new System.EventHandler(this.all_posts_button_Click);
             // 
             // label3
             // 
