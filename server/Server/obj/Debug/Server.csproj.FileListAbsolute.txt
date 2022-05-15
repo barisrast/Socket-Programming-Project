@@ -1,0 +1,11 @@
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\bin\Debug\Server.exe.config
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\bin\Debug\Server.exe
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\bin\Debug\Server.pdb
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.Form1.resources
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.Properties.Resources.resources
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.GenerateResource.Cache
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.exe
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.pdb
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.SuggestedBindingRedirects.cache
+C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
