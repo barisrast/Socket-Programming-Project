@@ -65,6 +65,7 @@
             // 
             this.server_logs.Location = new System.Drawing.Point(96, 116);
             this.server_logs.Name = "server_logs";
+            this.server_logs.ReadOnly = true;
             this.server_logs.Size = new System.Drawing.Size(322, 342);
             this.server_logs.TabIndex = 3;
             this.server_logs.Text = "";

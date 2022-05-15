@@ -171,7 +171,9 @@ namespace Server
                         string finalLine = usernameString + "||" + postIDVarString + "||" + postString + "||" + now;
 
 
-                        server_logs.AppendText(finalLine);
+                        server_logs.AppendText(usernameString+" has sent a post:\n");
+                        server_logs.AppendText(postString + "\n");
+
 
                         using (StreamWriter file = new StreamWriter("../../post-db.txt", append: true))
                         {
@@ -187,6 +189,11 @@ namespace Server
                         incomingAllPostsUsername = incomingAllPostsUsername.Substring(0, incomingAllPostsUsername.IndexOf("\0"));
 
 
+                        string infoMessageString = "Showing all posts from clients: ";
+                        Byte[] infoMessageBuffer = new Byte[1024];
+                        infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
+                        thisClient.Send(infoMessageBuffer);
+
                         foreach (string line in File.ReadLines("../../post-db.txt", Encoding.UTF8))
                         {
                             char[] delimeters = { '|', '|' };
@@ -200,13 +207,14 @@ namespace Server
 
                             if (usernameToken != incomingAllPostsUsername)
                             {
-                                string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n";
+                                string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
 
                                 Byte[] sendBuffer = new Byte[1000000];
                                 sendBuffer = Encoding.Default.GetBytes(postMessageString);
                                 thisClient.Send(sendBuffer);
                             }
                         }
+                        server_logs.AppendText("Showed all posts for " + incomingAllPostsUsername+"\n");
                     }
 
 

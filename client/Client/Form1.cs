@@ -63,7 +63,7 @@ namespace Client
 
                     if (usernameResponseString != "yes")
                     {
-                        logs.AppendText("this username is not valid");
+                        logs.AppendText("Please enter a valid username.\n");
                     }
                     else
                     {
@@ -74,13 +74,13 @@ namespace Client
                         post_textbox.Enabled = true;
                         all_posts_button.Enabled = true;
                         post_Send_Button.Enabled = true;
+                        connect_button.BackColor = Color.LawnGreen;
+                        disconnect_button.BackColor = Color.IndianRed;
 
                         connected = true;
-                        logs.AppendText("Hello! " + username_textbox.Text + " You are connected to the server.\n");
+                        logs.AppendText("Hello " + username_textbox.Text + "! You are connected to the server.\n");
                         Thread receiveThread = new Thread(Receive);
                         receiveThread.Start();
-
-
                     }
 
 
@@ -133,6 +133,8 @@ namespace Client
                         post_Send_Button.Enabled = false;
                         post_textbox.Enabled = false;
                         all_posts_button.Enabled = false;
+                        connect_button.BackColor = SystemColors.Control;
+                        disconnect_button.BackColor = SystemColors.Control;
                     }
 
                     clientSocket.Close();
@@ -154,8 +156,10 @@ namespace Client
             post_Send_Button.Enabled = false;
             post_textbox.Enabled = false;
             all_posts_button.Enabled = false;
+            connect_button.BackColor = SystemColors.Control;
+            disconnect_button.BackColor = SystemColors.Control;
 
-            
+
         }
 
         private void post_Send_Button_Click(object sender, EventArgs e)
@@ -174,8 +178,8 @@ namespace Client
             messageList.AddRange(Encoding.Default.GetBytes(usernameMessage));
             messageList.AddRange(Encoding.Default.GetBytes("$"));
             messageList.AddRange(Encoding.Default.GetBytes(postMessage));
-            
-           
+
+            logs.AppendText(usernameMessage + ": " + postMessage + "\n");
 
             Byte[] buffer = messageList.ToArray();
             clientSocket.Send(buffer);
@@ -191,9 +195,8 @@ namespace Client
 
             
             string sendUsernameString = username_textbox.Text;
-            logs.AppendText(sendUsernameString);
             Byte[] sendUsernameBuffer = new byte[1024];
-            sendCodeBuffer = Encoding.Default.GetBytes(sendUsernameString);
+            sendUsernameBuffer = Encoding.Default.GetBytes(sendUsernameString);
             clientSocket.Send(sendUsernameBuffer);
 
         }

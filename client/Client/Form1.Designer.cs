@@ -98,6 +98,7 @@
             // 
             this.logs.Location = new System.Drawing.Point(346, 32);
             this.logs.Name = "logs";
+            this.logs.ReadOnly = true;
             this.logs.Size = new System.Drawing.Size(246, 455);
             this.logs.TabIndex = 12;
             this.logs.Text = "";
