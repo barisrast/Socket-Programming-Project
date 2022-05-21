@@ -72,7 +72,16 @@ namespace Server
                     string incomingUsername = Encoding.Default.GetString(usernameBuffer);
                     incomingUsername = incomingUsername.Substring(0, incomingUsername.IndexOf("\0"));
 
-                    bool usernameExists = File.ReadAllText(@"../../user-db.txt").Contains(incomingUsername);
+                    //bool usernameExists = File.ReadAllText(@"../../user-db.txt").Contains(incomingUsername);
+                    bool usernameExists = false;
+                    foreach( string line in File.ReadLines(@"../../user-db.txt", Encoding.UTF8))
+                    {
+                        if( line == incomingUsername )
+                        {
+                            usernameExists = true;
+                        }
+                    }
+
 
                     Byte[] usernameResponseBuffer = new Byte[64];
                     string usernameResponseString = "";
