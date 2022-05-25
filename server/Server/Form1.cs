@@ -149,6 +149,8 @@ namespace Server
         private void Receive(Socket thisClient) // updated
         {
             bool connected = true;
+            Dictionary<Socket, string> revDictionary = socketDictionary.ToDictionary(pair => pair.Value, pair => pair.Key);
+            string UsernameVar = revDictionary[thisClient];
 
             while (connected && !terminating)
             {
@@ -248,10 +250,12 @@ namespace Server
                 {
                     if (!terminating)
                     {
-                        server_logs.AppendText("A client has disconnected\n");
+                        server_logs.AppendText(UsernameVar + " has disconnected\n");
                     }
                     thisClient.Close();
-                    socketDictionary.Remove(u)
+                   
+                    socketDictionary.Remove(UsernameVar);
+                    revDictionary.Remove(thisClient);
                     clientSockets.Remove(thisClient);
                     connected = false;
                 }
