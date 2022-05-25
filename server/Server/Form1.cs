@@ -19,6 +19,8 @@ namespace Server
     {
         Socket serverSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
         List<Socket> clientSockets = new List<Socket>();
+        Dictionary<string, Socket> socketDictionary = new Dictionary<string, Socket>();
+        
 
         bool terminating = false;
         bool listening = false;
@@ -88,23 +90,37 @@ namespace Server
 
                     if (usernameExists)
                     {
+                        if (!socketDictionary.ContainsKey(incomingUsername))
+                        {
 
-                        
-                        usernameResponseString = "yes";
-                        usernameResponseBuffer = Encoding.Default.GetBytes(usernameResponseString);
-                        newClient.Send(usernameResponseBuffer);
+                            usernameResponseString = "yes";
+                            usernameResponseBuffer = Encoding.Default.GetBytes(usernameResponseString);
+                            newClient.Send(usernameResponseBuffer);
 
-                        server_logs.AppendText(incomingUsername + " has connected!\n");
+                            server_logs.AppendText(incomingUsername + " has connected!\n");
 
-                        clientSockets.Add(newClient);
 
-                        Thread receiveThread = new Thread(() => Receive(newClient)); // updated
-                        receiveThread.Start();
+                            socketDictionary.Add(incomingUsername, newClient);
+                            clientSockets.Add(newClient);
+
+                            Thread receiveThread = new Thread(() => Receive(newClient)); // updated
+                            receiveThread.Start();
+                        }
+                        else
+                        {
+                            server_logs.AppendText(incomingUsername + " is already connected but tried to connect again.\n");
+
+                            usernameResponseString = "no";
+                            usernameResponseBuffer = Encoding.Default.GetBytes(usernameResponseString);
+                            newClient.Send(usernameResponseBuffer);
+
+                            newClient.Close();
+                        }
 
                     }
                     else
                     {
-                        server_logs.AppendText(incomingUsername + "Tried to connect to the server but cannot!\n");
+                        server_logs.AppendText(incomingUsername + " Tried to connect to the server but cannot!\n");
 
                         usernameResponseString = "no";
                         usernameResponseBuffer = Encoding.Default.GetBytes(usernameResponseString);
@@ -235,6 +251,7 @@ namespace Server
                         server_logs.AppendText("A client has disconnected\n");
                     }
                     thisClient.Close();
+                    socketDictionary.Remove(u)
                     clientSockets.Remove(thisClient);
                     connected = false;
                 }

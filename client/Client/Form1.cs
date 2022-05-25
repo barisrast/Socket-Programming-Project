@@ -146,6 +146,7 @@ namespace Client
 
         private void disconnect_button_Click(object sender, EventArgs e)
         {
+            terminating = true;
             clientSocket.Close();
             connected = false;
             logs.AppendText("Successfully disconnected.\n");
