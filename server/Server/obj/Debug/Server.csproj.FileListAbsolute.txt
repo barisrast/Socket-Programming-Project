@@ -9,3 +9,13 @@ C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_ba
 C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.AssemblyReference.cache
 C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.SuggestedBindingRedirects.cache
 C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\server\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\bin\Debug\Server.exe.config
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\bin\Debug\Server.exe
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\bin\Debug\Server.pdb
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.csproj.AssemblyReference.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.Form1.resources
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.Properties.Resources.resources
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.csproj.GenerateResource.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.csproj.CoreCompileInputs.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.exe
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\server\Server\obj\Debug\Server.pdb

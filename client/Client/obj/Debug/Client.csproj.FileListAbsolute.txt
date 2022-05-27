@@ -9,3 +9,13 @@ C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_ba
 C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\client\Client\obj\Debug\Client.csproj.AssemblyReference.cache
 C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\client\Client\obj\Debug\Client.csproj.SuggestedBindingRedirects.cache
 C:\Users\baris\Documents\Visual Studio 2015\Projects\barisrastgeldi_rastgeldi_bariserdem\client\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\bin\Debug\Client.exe.config
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\bin\Debug\Client.exe
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\bin\Debug\Client.pdb
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.csproj.AssemblyReference.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.Form1.resources
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.Properties.Resources.resources
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.csproj.GenerateResource.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.csproj.CoreCompileInputs.cache
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.exe
+C:\Users\mertk\Source\Repos\barisrast\Socket-Programming-Project\client\Client\obj\Debug\Client.pdb

@@ -56,7 +56,7 @@ namespace Server
             }
             else
             {
-                server_logs.AppendText("Please check port number \n");
+                server_logs.AppendText("Please check port number.\n");
             }
         }
 
@@ -74,7 +74,7 @@ namespace Server
                     string incomingUsername = Encoding.Default.GetString(usernameBuffer);
                     incomingUsername = incomingUsername.Substring(0, incomingUsername.IndexOf("\0"));
 
-                    //bool usernameExists = File.ReadAllText(@"../../user-db.txt").Contains(incomingUsername);
+                    // Check wheter the username exist in database
                     bool usernameExists = false;
                     foreach( string line in File.ReadLines(@"../../user-db.txt", Encoding.UTF8))
                     {
@@ -120,7 +120,7 @@ namespace Server
                     }
                     else
                     {
-                        server_logs.AppendText(incomingUsername + " Tried to connect to the server but cannot!\n");
+                        server_logs.AppendText(incomingUsername + " tried to connect to the server but cannot!\n");
 
                         usernameResponseString = "no";
                         usernameResponseBuffer = Encoding.Default.GetBytes(usernameResponseString);
@@ -194,13 +194,10 @@ namespace Server
                         int postIDVar = max + 1;
                         string postIDVarString = postIDVar.ToString();
 
-
                         string finalLine = usernameString + "||" + postIDVarString + "||" + postString + "||" + now;
-
 
                         server_logs.AppendText(usernameString+" has sent a post:\n");
                         server_logs.AppendText(postString + "\n");
-
 
                         using (StreamWriter file = new StreamWriter("../../post-db.txt", append: true))
                         {
@@ -208,15 +205,16 @@ namespace Server
                         }
 
                     }
-                    else if (incomingMessage == "ALLP")
+
+                    else if (incomingMessage == "ALL_POST" || incomingMessage == "MY_POST")
                     {
-                        Byte[] usernameAllPostsBuffer = new Byte[1024];
-                        thisClient.Receive(usernameAllPostsBuffer);
-                        string incomingAllPostsUsername = Encoding.Default.GetString(usernameAllPostsBuffer);
-                        incomingAllPostsUsername = incomingAllPostsUsername.Substring(0, incomingAllPostsUsername.IndexOf("\0"));
+                        Byte[] usernamePostBuffer = new Byte[1024];
+                        thisClient.Receive(usernamePostBuffer);
+                        string incomingPostUsername = Encoding.Default.GetString(usernamePostBuffer);
+                        incomingPostUsername = incomingPostUsername.Substring(0, incomingPostUsername.IndexOf("\0"));
 
 
-                        string infoMessageString = "Showing all posts from clients: ";
+                        string infoMessageString = incomingMessage == "ALL_POST" ? "\nShowing all posts from clients:\n" : "\nShowing your posts:\n";           
                         Byte[] infoMessageBuffer = new Byte[1024];
                         infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
                         thisClient.Send(infoMessageBuffer);
@@ -232,7 +230,7 @@ namespace Server
                             string postTimeToken = lineWords[6];
 
 
-                            if (usernameToken != incomingAllPostsUsername)
+                            if (incomingMessage == "ALL_POST" && usernameToken != incomingPostUsername)
                             {
                                 string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
 
@@ -240,17 +238,95 @@ namespace Server
                                 sendBuffer = Encoding.Default.GetBytes(postMessageString);
                                 thisClient.Send(sendBuffer);
                             }
+
+                            else if (incomingMessage == "MY_POST" && usernameToken == incomingPostUsername) 
+                            {
+                                string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
+
+                                Byte[] sendBuffer = new Byte[1000000];
+                                sendBuffer = Encoding.Default.GetBytes(postMessageString);
+                                thisClient.Send(sendBuffer);
+                            }
+
                         }
-                        server_logs.AppendText("Showed all posts for " + incomingAllPostsUsername+"\n");
+                        if(incomingMessage == "ALL_POST")
+                            server_logs.AppendText("Showed all posts for " + incomingPostUsername + ".\n");
+                        else if(incomingMessage == "MY_POST")
+                            server_logs.AppendText(incomingPostUsername + " looked his/her own posts.\n");
                     }
 
+                    else if(incomingMessage == "DELETE_POST")
+                    {
+                        Byte[] usernamAndPostIDBuffer = new Byte[1024];
+                        thisClient.Receive(usernamAndPostIDBuffer);
+                        string usernameAndPostID = Encoding.Default.GetString(usernamAndPostIDBuffer);
+                        usernameAndPostID = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("\0"));
 
+                        string username = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("|"));
+                        string postId = usernameAndPostID.Substring(usernameAndPostID.IndexOf("|") + 1);
+
+                        bool doesIDExist = false;
+                        // Rewriting the file, skip the line if there is a Username & Post ID match
+                        string[] Lines = File.ReadAllLines("../../post-db.txt");
+                        File.Delete("../../post-db.txt");// Deleting the file
+                        using (StreamWriter sw = File.AppendText("../../post-db.txt")) {
+                            foreach (string line in Lines) {
+
+                                char[] delimeters = { '|', '|' };
+                                string[] lineWords = line.Split(delimeters);
+
+                                string usernameToken = lineWords[0];
+                                string postIdToken = lineWords[2];
+                                string postTextToken = lineWords[4];
+                                string postTimeToken = lineWords[6];
+
+                                // Username & Post ID match, skip the line
+                                if (postIdToken == postId && usernameToken == username) {                               
+                                    string infoMessageString = "Post with ID " + postId + " is deleted successfully!\n";
+                                    Byte[] infoMessageBuffer = new Byte[1024];
+                                    infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
+                                    thisClient.Send(infoMessageBuffer);
+
+                                    server_logs.AppendText("Post with ID " + postId + " is deleted.\n");
+
+                                    doesIDExist = true;
+                                    continue;
+                                }
+                                // No match, rewrite the line
+                                else {
+                                    sw.WriteLine(line);
+
+                                    // Post ID match, Username does not match
+                                    if(postIdToken == postId && usernameToken != username) {
+                                        string infoMessageString = "Post with ID " + postId + " is not yours!\n";
+                                        Byte[] infoMessageBuffer = new Byte[1024];
+                                        infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
+                                        thisClient.Send(infoMessageBuffer);
+
+                                        server_logs.AppendText("Post with ID " + postId + " is not " + username + "'s!\n");
+                                        doesIDExist = true;
+                                    }
+                                }
+                            }
+
+                            // Post ID does not exist in the file
+                            if (!doesIDExist) {
+                                string infoMessageString = "There is no post with ID: " + postId + ".\n";
+                                Byte[] infoMessageBuffer = new Byte[1024];
+                                infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
+                                thisClient.Send(infoMessageBuffer);
+
+                                server_logs.AppendText("Post with ID " + postId + " does not exist!\n");
+                            }
+                        }
+                    }
                 }
+
                 catch
                 {
                     if (!terminating)
                     {
-                        server_logs.AppendText(UsernameVar + " has disconnected\n");
+                        server_logs.AppendText(UsernameVar + " has disconnected.\n");
                     }
                     thisClient.Close();
                    
@@ -267,8 +343,5 @@ namespace Server
             terminating = true;
             Environment.Exit(0);
         }
-
-
-
     }
 }

@@ -34,7 +34,6 @@ namespace Client
 
         }
 
-
         private void connect_button_Click(object sender, EventArgs e)
         {
             clientSocket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -74,6 +73,11 @@ namespace Client
                         post_textbox.Enabled = true;
                         all_posts_button.Enabled = true;
                         post_Send_Button.Enabled = true;
+
+                        my_post_button.Enabled = true;
+                        post_id_textbox.Enabled = true;
+                        delete_post_button.Enabled = true;
+
                         connect_button.BackColor = Color.LawnGreen;
                         disconnect_button.BackColor = Color.IndianRed;
 
@@ -112,14 +116,13 @@ namespace Client
             {
                 try
                 {
-
                     Byte[] buffer = new Byte[10000000];
                     clientSocket.Receive(buffer);
 
                     string incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf("\0"));
 
-                    logs.AppendText(incomingMessage + "\n");
+                    logs.AppendText(incomingMessage);
                 }
                 catch
                 {
@@ -133,6 +136,11 @@ namespace Client
                         post_Send_Button.Enabled = false;
                         post_textbox.Enabled = false;
                         all_posts_button.Enabled = false;
+
+                        my_post_button.Enabled = false;
+                        post_id_textbox.Enabled = false;
+                        delete_post_button.Enabled = false;
+
                         connect_button.BackColor = SystemColors.Control;
                         disconnect_button.BackColor = SystemColors.Control;
                     }
@@ -157,6 +165,11 @@ namespace Client
             post_Send_Button.Enabled = false;
             post_textbox.Enabled = false;
             all_posts_button.Enabled = false;
+
+            my_post_button.Enabled = false;
+            post_id_textbox.Enabled = false;
+            delete_post_button.Enabled = false;
+
             connect_button.BackColor = SystemColors.Control;
             disconnect_button.BackColor = SystemColors.Control;
 
@@ -165,8 +178,6 @@ namespace Client
 
         private void post_Send_Button_Click(object sender, EventArgs e)
         {
-
-
             string sendCodeString = "SEND";
             Byte[] sendCodeBuffer = new byte[1024];
             sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
@@ -180,16 +191,18 @@ namespace Client
             messageList.AddRange(Encoding.Default.GetBytes("$"));
             messageList.AddRange(Encoding.Default.GetBytes(postMessage));
 
-            logs.AppendText(usernameMessage + ": " + postMessage + "\n");
-
             Byte[] buffer = messageList.ToArray();
             clientSocket.Send(buffer);
 
+            logs.AppendText("You have successfully sent a post!\n");
+            logs.AppendText(usernameMessage + ": " + postMessage + "\n");
+
+            post_textbox.Clear();
         }
 
         private void all_posts_button_Click(object sender, EventArgs e)
         {
-            string sendCodeString = "ALLP";
+            string sendCodeString = "ALL_POST";
             Byte[] sendCodeBuffer = new byte[1024];
             sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
             clientSocket.Send(sendCodeBuffer);
@@ -201,6 +214,33 @@ namespace Client
             clientSocket.Send(sendUsernameBuffer);
 
         }
-    }
-    // Comment
+
+		private void my_post_button_Click(object sender, EventArgs e) {
+            string sendCodeString = "MY_POST";
+            Byte[] sendCodeBuffer = new byte[1024];
+            sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
+            clientSocket.Send(sendCodeBuffer);
+
+
+            string sendUsernameString = username_textbox.Text;
+            Byte[] sendUsernameBuffer = new byte[1024];
+            sendUsernameBuffer = Encoding.Default.GetBytes(sendUsernameString);
+            clientSocket.Send(sendUsernameBuffer);
+        }
+
+		private void delete_post_button_Click(object sender, EventArgs e) {
+            string sendCodeString = "DELETE_POST";
+            Byte[] sendCodeBuffer = new byte[1024];
+            sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
+            clientSocket.Send(sendCodeBuffer);
+
+            string sendUsernameAndPostID = username_textbox.Text + "|" + post_id_textbox.Text;
+            Byte[] sendUsernameAndPostIDBuffer = new byte[1024];
+            sendUsernameAndPostIDBuffer = Encoding.Default.GetBytes(sendUsernameAndPostID);
+            clientSocket.Send(sendUsernameAndPostIDBuffer);
+
+            post_id_textbox.Clear();
+        }
+	}
+
 }
