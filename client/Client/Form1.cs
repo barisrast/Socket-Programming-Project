@@ -19,6 +19,13 @@ namespace Client
         bool connected = false;
         Socket clientSocket;
 
+        private void send_message(string messageString)
+        {
+            Byte[] buffer = new Byte[10000000];
+            buffer = Encoding.Default.GetBytes(messageString);
+            clientSocket.Send(buffer);
+        }
+
         public Form1()
         {
             Control.CheckForIllegalCrossThreadCalls = false;
@@ -80,6 +87,7 @@ namespace Client
 
                         add_friend_button.Enabled = true;
                         add_username_textbox.Enabled = true;
+                        remove_friend_button.Enabled = true;
 
                         connect_button.BackColor = Color.LawnGreen;
                         disconnect_button.BackColor = Color.IndianRed;
@@ -280,7 +288,15 @@ namespace Client
             add_username_textbox.Clear();
         }
 
+        private void remove_friend_button_Click(object sender, EventArgs e)
+        {
+            send_message("REMOVE_FRIEND");
 
+
+            string selectedFriend = friend_list_listbox.SelectedItem.ToString().Trim();
+            send_message(selectedFriend);
+            
+        }
     }
 
 }

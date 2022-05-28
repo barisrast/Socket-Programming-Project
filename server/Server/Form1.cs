@@ -177,7 +177,7 @@ namespace Server
                         DateTime now = DateTime.Now;
                         now.ToString("F");
 
-                        int max = 0; 
+                        int max = 0;
                         foreach (string line in File.ReadLines("../../post-db.txt", Encoding.UTF8))
                         {
                             char[] delimeters = { '|', '|' };
@@ -188,7 +188,7 @@ namespace Server
                             if (postIDNum > max)
                             {
                                 max = postIDNum;
-                            } 
+                            }
                         }
 
                         int postIDVar = max + 1;
@@ -196,7 +196,7 @@ namespace Server
 
                         string finalLine = usernameString + "||" + postIDVarString + "||" + postString + "||" + now;
 
-                        server_logs.AppendText(usernameString+" has sent a post:\n");
+                        server_logs.AppendText(usernameString + " has sent a post:\n");
                         server_logs.AppendText(postString + "\n");
 
                         using (StreamWriter file = new StreamWriter("../../post-db.txt", append: true))
@@ -214,7 +214,7 @@ namespace Server
                         incomingPostUsername = incomingPostUsername.Substring(0, incomingPostUsername.IndexOf("\0"));
 
 
-                        string infoMessageString = incomingMessage == "ALL_POST" ? "\nShowing all posts from clients:\n" : "\nShowing your posts:\n";           
+                        string infoMessageString = incomingMessage == "ALL_POST" ? "\nShowing all posts from clients:\n" : "\nShowing your posts:\n";
                         Byte[] infoMessageBuffer = new Byte[1024];
                         infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
                         thisClient.Send(infoMessageBuffer);
@@ -239,7 +239,7 @@ namespace Server
                                 thisClient.Send(sendBuffer);
                             }
 
-                            else if (incomingMessage == "MY_POST" && usernameToken == incomingPostUsername) 
+                            else if (incomingMessage == "MY_POST" && usernameToken == incomingPostUsername)
                             {
                                 string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
 
@@ -249,13 +249,13 @@ namespace Server
                             }
 
                         }
-                        if(incomingMessage == "ALL_POST")
+                        if (incomingMessage == "ALL_POST")
                             server_logs.AppendText("Showed all posts for " + incomingPostUsername + ".\n");
-                        else if(incomingMessage == "MY_POST")
+                        else if (incomingMessage == "MY_POST")
                             server_logs.AppendText(incomingPostUsername + " looked his/her own posts.\n");
                     }
 
-                    else if(incomingMessage == "DELETE_POST")
+                    else if (incomingMessage == "DELETE_POST")
                     {
                         Byte[] usernamAndPostIDBuffer = new Byte[1024];
                         thisClient.Receive(usernamAndPostIDBuffer);
@@ -269,8 +269,10 @@ namespace Server
                         // Rewriting the file, skip the line if there is a Username & Post ID match
                         string[] Lines = File.ReadAllLines("../../post-db.txt");
                         File.Delete("../../post-db.txt");// Deleting the file
-                        using (StreamWriter sw = File.AppendText("../../post-db.txt")) {
-                            foreach (string line in Lines) {
+                        using (StreamWriter sw = File.AppendText("../../post-db.txt"))
+                        {
+                            foreach (string line in Lines)
+                            {
 
                                 char[] delimeters = { '|', '|' };
                                 string[] lineWords = line.Split(delimeters);
@@ -281,7 +283,8 @@ namespace Server
                                 string postTimeToken = lineWords[6];
 
                                 // Username & Post ID match, skip the line
-                                if (postIdToken == postId && usernameToken == username) {                               
+                                if (postIdToken == postId && usernameToken == username)
+                                {
                                     string infoMessageString = "Post with ID " + postId + " is deleted successfully!\n";
                                     Byte[] infoMessageBuffer = new Byte[1024];
                                     infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
@@ -293,11 +296,13 @@ namespace Server
                                     continue;
                                 }
                                 // No match, rewrite the line
-                                else {
+                                else
+                                {
                                     sw.WriteLine(line);
 
                                     // Post ID match, Username does not match
-                                    if(postIdToken == postId && usernameToken != username) {
+                                    if (postIdToken == postId && usernameToken != username)
+                                    {
                                         string infoMessageString = "Post with ID " + postId + " is not yours!\n";
                                         Byte[] infoMessageBuffer = new Byte[1024];
                                         infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
@@ -310,7 +315,8 @@ namespace Server
                             }
 
                             // Post ID does not exist in the file
-                            if (!doesIDExist) {
+                            if (!doesIDExist)
+                            {
                                 string infoMessageString = "There is no post with ID: " + postId + ".\n";
                                 Byte[] infoMessageBuffer = new Byte[1024];
                                 infoMessageBuffer = Encoding.Default.GetBytes(infoMessageString);
@@ -330,7 +336,7 @@ namespace Server
                         string username = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("|"));
                         string friendUsername = usernameAndPostID.Substring(usernameAndPostID.IndexOf("|") + 1);
 
-                        if(username == friendUsername)
+                        if (username == friendUsername)
                         {
                             string sameUsernameError = "You cannot add yourself as a friend!\n";
 
@@ -350,7 +356,7 @@ namespace Server
                             }
                         }
 
-                        if(usernameExists == false)
+                        if (usernameExists == false)
                         {
                             string sameUsernameError = friendUsername + "is not registered as a user!\n";
                             Byte[] sendBuffer = new Byte[1000000];
@@ -362,8 +368,8 @@ namespace Server
                         //initial checks are completed
 
                         if ((username != friendUsername) && usernameExists == true)
-                        { 
-                       
+                        {
+
                             string friendLineString = username + "|" + friendUsername + "\n";
 
                             using (StreamWriter file = new StreamWriter("../../friend-db.txt", append: true))
@@ -381,7 +387,7 @@ namespace Server
                     }
                     else if (incomingMessage == "GET_FRIEND")
                     {
-                        
+
                         List<string> friendsList = new List<string>();
                         foreach (string line in File.ReadLines(@"../../friend-db.txt", Encoding.UTF8))
                         {
@@ -403,10 +409,10 @@ namespace Server
                             }
                         }
 
-                        
+
 
                         string finalFriendsString = "";
-                        foreach(string element in friendsList)
+                        foreach (string element in friendsList)
                         {
                             finalFriendsString = finalFriendsString + "&" + element;
                         }
@@ -414,6 +420,39 @@ namespace Server
                         Byte[] sendBuffer = new Byte[1000000];
                         sendBuffer = Encoding.Default.GetBytes(finalFriendsString);
                         thisClient.Send(sendBuffer);
+                    }
+                    else if (incomingMessage == "REMOVE_FRIEND")
+                    {
+                        Byte[] removeFriendBuffer = new Byte[1024];
+                        thisClient.Receive(removeFriendBuffer);
+                        string removeFriendString = Encoding.Default.GetString(removeFriendBuffer);
+                        removeFriendString = removeFriendString.Substring(0, removeFriendString.IndexOf("\0"));
+
+                        string[] Lines = File.ReadAllLines("../../friend-db.txt");
+                        File.Delete("../../friend-db.txt");
+
+                        using (StreamWriter sw = File.AppendText("../../friend-db.txt"))
+                        {
+                            foreach (string line in Lines)
+                            {
+                                if (line != "")
+                                {
+                                    string[] tokens = line.Split('|');
+                                    if (((tokens[0] == UsernameVar) && (tokens[1] == removeFriendString)) || ((tokens[1] == UsernameVar) && (tokens[0] == removeFriendString)))
+                                    {
+                                        string friendAddSuccess = removeFriendString + "has been removed from your friends!\n";
+                                        Byte[] sendBuffer = new Byte[1000000];
+                                        sendBuffer = Encoding.Default.GetBytes(friendAddSuccess);
+                                        thisClient.Send(sendBuffer);
+
+                                    }
+                                    else
+                                    {
+                                        sw.WriteLine(line);
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
 

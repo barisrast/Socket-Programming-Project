@@ -178,7 +178,6 @@
             this.friend_list_listbox.Name = "friend_list_listbox";
             this.friend_list_listbox.Size = new System.Drawing.Size(163, 147);
             this.friend_list_listbox.TabIndex = 20;
-           
             // 
             // add_username_textbox
             // 
@@ -207,6 +206,7 @@
             this.remove_friend_button.TabIndex = 23;
             this.remove_friend_button.Text = "Remove Friend";
             this.remove_friend_button.UseVisualStyleBackColor = true;
+            this.remove_friend_button.Click += new System.EventHandler(this.remove_friend_button_Click);
             // 
             // add_friend_button
             // 
