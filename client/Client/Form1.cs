@@ -78,6 +78,9 @@ namespace Client
                         post_id_textbox.Enabled = true;
                         delete_post_button.Enabled = true;
 
+                        add_friend_button.Enabled = true;
+                        add_username_textbox.Enabled = true;
+
                         connect_button.BackColor = Color.LawnGreen;
                         disconnect_button.BackColor = Color.IndianRed;
 
@@ -85,6 +88,11 @@ namespace Client
                         logs.AppendText("Hello " + username_textbox.Text + "! You are connected to the server.\n");
                         Thread receiveThread = new Thread(Receive);
                         receiveThread.Start();
+
+                        string sendCodeString = "GET_FRIEND";
+                        Byte[] sendCodeBuffer = new byte[1024];
+                        sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
+                        clientSocket.Send(sendCodeBuffer);
                     }
 
 
@@ -118,11 +126,26 @@ namespace Client
                 {
                     Byte[] buffer = new Byte[10000000];
                     clientSocket.Receive(buffer);
-
                     string incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf("\0"));
+                    
 
-                    logs.AppendText(incomingMessage);
+                    if (incomingMessage != "" && incomingMessage[0] == '&')
+                    {
+                        
+                        string[] friendsTokens = incomingMessage.Split('&');
+                        
+                        foreach (string item in friendsTokens)
+                        {
+                            friend_list_listbox.Items.Add(item);
+
+                        }
+
+                    }
+                    else
+                    {
+                        logs.AppendText(incomingMessage);
+                    }
                 }
                 catch
                 {
@@ -241,6 +264,23 @@ namespace Client
 
             post_id_textbox.Clear();
         }
-	}
+
+        private void add_friend_button_Click(object sender, EventArgs e)
+        {
+            string sendCodeString = "ADD_FRIEND";
+            Byte[] sendCodeBuffer = new byte[1024];
+            sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
+            clientSocket.Send(sendCodeBuffer);
+
+            string sendUsernameAndFriend = username_textbox.Text + "|" + add_username_textbox.Text;
+            Byte[] sendUsernameAndFriendBuffer = new byte[1024];
+            sendUsernameAndFriendBuffer = Encoding.Default.GetBytes(sendUsernameAndFriend);
+            clientSocket.Send(sendUsernameAndFriendBuffer);
+
+            add_username_textbox.Clear();
+        }
+
+
+    }
 
 }

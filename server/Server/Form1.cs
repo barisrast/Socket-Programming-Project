@@ -320,6 +320,101 @@ namespace Server
                             }
                         }
                     }
+                    else if (incomingMessage == "ADD_FRIEND")
+                    {
+                        Byte[] usernamAndPostIDBuffer = new Byte[1024];
+                        thisClient.Receive(usernamAndPostIDBuffer);
+                        string usernameAndPostID = Encoding.Default.GetString(usernamAndPostIDBuffer);
+                        usernameAndPostID = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("\0"));
+
+                        string username = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("|"));
+                        string friendUsername = usernameAndPostID.Substring(usernameAndPostID.IndexOf("|") + 1);
+
+                        if(username == friendUsername)
+                        {
+                            string sameUsernameError = "You cannot add yourself as a friend!\n";
+
+                            Byte[] sendBuffer = new Byte[1000000];
+                            sendBuffer = Encoding.Default.GetBytes(sameUsernameError);
+                            thisClient.Send(sendBuffer);
+
+                            server_logs.AppendText(username + "tried to add themselves as a friend.\n");
+                        }
+
+                        bool usernameExists = false;
+                        foreach (string line in File.ReadLines(@"../../user-db.txt", Encoding.UTF8))
+                        {
+                            if (line == friendUsername)
+                            {
+                                usernameExists = true;
+                            }
+                        }
+
+                        if(usernameExists == false)
+                        {
+                            string sameUsernameError = friendUsername + "is not registered as a user!\n";
+                            Byte[] sendBuffer = new Byte[1000000];
+                            sendBuffer = Encoding.Default.GetBytes(sameUsernameError);
+                            thisClient.Send(sendBuffer);
+
+                            server_logs.AppendText(username + "tried to add" + friendUsername + " as a friend who is not registered.\n");
+                        }
+                        //initial checks are completed
+
+                        if ((username != friendUsername) && usernameExists == true)
+                        { 
+                       
+                            string friendLineString = username + "|" + friendUsername + "\n";
+
+                            using (StreamWriter file = new StreamWriter("../../friend-db.txt", append: true))
+                            {
+                                file.WriteLine(friendLineString);
+                            }
+
+                            string friendAddSuccess = friendUsername + "has been added as a friend!\n";
+                            Byte[] sendBuffer = new Byte[1000000];
+                            sendBuffer = Encoding.Default.GetBytes(friendAddSuccess);
+                            thisClient.Send(sendBuffer);
+
+                            server_logs.AppendText(username + " has added " + friendUsername + " as a friend.\n");
+                        }
+                    }
+                    else if (incomingMessage == "GET_FRIEND")
+                    {
+                        
+                        List<string> friendsList = new List<string>();
+                        foreach (string line in File.ReadLines(@"../../friend-db.txt", Encoding.UTF8))
+                        {
+                            if (line != "")
+                            {
+                                string[] lineTokens = line.Split('|');
+                                if (lineTokens[0] == UsernameVar || lineTokens[1] == UsernameVar)
+                                {
+                                    if (lineTokens[0] != UsernameVar)
+                                    {
+                                        friendsList.Add(lineTokens[0]);
+
+                                    }
+                                    else
+                                    {
+                                        friendsList.Add(lineTokens[1]);
+                                    }
+                                }
+                            }
+                        }
+
+                        
+
+                        string finalFriendsString = "";
+                        foreach(string element in friendsList)
+                        {
+                            finalFriendsString = finalFriendsString + "&" + element;
+                        }
+
+                        Byte[] sendBuffer = new Byte[1000000];
+                        sendBuffer = Encoding.Default.GetBytes(finalFriendsString);
+                        thisClient.Send(sendBuffer);
+                    }
                 }
 
                 catch
