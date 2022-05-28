@@ -88,6 +88,7 @@ namespace Client
                         add_friend_button.Enabled = true;
                         add_username_textbox.Enabled = true;
                         remove_friend_button.Enabled = true;
+                        button_friend_post.Enabled = true;
 
                         connect_button.BackColor = Color.LawnGreen;
                         disconnect_button.BackColor = Color.IndianRed;
@@ -171,6 +172,7 @@ namespace Client
                         my_post_button.Enabled = false;
                         post_id_textbox.Enabled = false;
                         delete_post_button.Enabled = false;
+                        
 
                         connect_button.BackColor = SystemColors.Control;
                         disconnect_button.BackColor = SystemColors.Control;
@@ -296,6 +298,14 @@ namespace Client
             string selectedFriend = friend_list_listbox.SelectedItem.ToString().Trim();
             send_message(selectedFriend);
             
+        }
+
+        private void button_friend_post_Click(object sender, EventArgs e)
+        {
+            string sendCodeString = "FRIEND_POSTS";
+            Byte[] sendCodeBuffer = new byte[1024];
+            sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
+            clientSocket.Send(sendCodeBuffer);
         }
     }
 

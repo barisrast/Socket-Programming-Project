@@ -257,6 +257,7 @@
             this.button_friend_post.TabIndex = 28;
             this.button_friend_post.Text = "Friend\'s Posts";
             this.button_friend_post.UseVisualStyleBackColor = true;
+            this.button_friend_post.Click += new System.EventHandler(this.button_friend_post_Click);
             // 
             // label7
             // 

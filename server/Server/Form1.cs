@@ -409,8 +409,6 @@ namespace Server
                             }
                         }
 
-
-
                         string finalFriendsString = "";
                         foreach (string element in friendsList)
                         {
@@ -453,6 +451,57 @@ namespace Server
                                 }
                             }
                         }
+                    }
+                    else if (incomingMessage == "FRIEND_POSTS")
+                    {
+                        //following part is to get every friend of the user
+                        string[] friendLines = File.ReadAllLines("../../friend-db.txt");
+                        List<string> friendsList = new List<string>();
+
+                        foreach (string line in friendLines)
+                        {
+                            if (line != "")
+                            {
+                                string[] tokens = line.Split('|');
+                                if (tokens[0] == UsernameVar)
+                                {
+                                    friendsList.Add(tokens[1]);
+                                }
+                                else if (tokens[1] == UsernameVar)
+                                {
+                                    friendsList.Add(tokens[0]);
+                                }
+                            }
+                        }
+
+                        //following part is to get all posts of those friends
+
+                        string[] postLines = File.ReadAllLines("../../post-db.txt");
+
+                        foreach (string line in postLines)
+                        {
+                            if(line != "")
+                            {
+                                char[] delimeters = { '|', '|' };
+                                string[] lineWords = line.Split(delimeters);
+
+                                string usernameToken = lineWords[0];
+                                string postIdToken = lineWords[2];
+                                string postTextToken = lineWords[4];
+                                string postTimeToken = lineWords[6];
+
+                                if (friendsList.Contains(usernameToken))
+                                {
+                                    string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
+
+                                    Byte[] sendBuffer = new Byte[1000000];
+                                    sendBuffer = Encoding.Default.GetBytes(postMessageString);
+                                    thisClient.Send(sendBuffer);
+                                }
+                            }
+                        }
+                        server_logs.AppendText("Showed all posts of" + UsernameVar + "\'s friends.\n");
+
                     }
                 }
 
