@@ -344,8 +344,32 @@ namespace Server
                             sendBuffer = Encoding.Default.GetBytes(sameUsernameError);
                             thisClient.Send(sendBuffer);
 
-                            server_logs.AppendText(username + "tried to add themselves as a friend.\n");
+                            server_logs.AppendText(username + " tried to add themselves as a friend.\n");
                         }
+
+                        string[] friendsLines = File.ReadAllLines("../../friend-db.txt");
+                        bool alreadyFriendsBool = false;
+
+                        foreach (string line in friendsLines)
+                        {
+                            if (line != "")
+                            {
+                                string[] tokens = line.Split('|');
+                                if (((tokens[0] == UsernameVar) && (tokens[1] == friendUsername)) || ((tokens[1] == UsernameVar) && (tokens[0] == friendUsername)))
+                                {
+                                    alreadyFriendsBool = true;
+                                    string friendAddSuccess = friendUsername + " is already added as a friend!\n";
+                                    Byte[] sendBuffer2 = new Byte[1000000];
+                                    sendBuffer2 = Encoding.Default.GetBytes(friendAddSuccess);
+                                    thisClient.Send(sendBuffer2);
+
+                                    server_logs.AppendText(UsernameVar + " tried to add " + friendUsername + " but " + friendUsername + " is already his/her friend!\n");
+
+                                }
+                            }
+                        }
+
+
 
                         bool usernameExists = false;
                         foreach (string line in File.ReadLines(@"../../user-db.txt", Encoding.UTF8))
@@ -358,16 +382,16 @@ namespace Server
 
                         if (usernameExists == false)
                         {
-                            string sameUsernameError = friendUsername + "is not registered as a user!\n";
+                            string sameUsernameError = friendUsername + " is not registered as a user!\n";
                             Byte[] sendBuffer = new Byte[1000000];
                             sendBuffer = Encoding.Default.GetBytes(sameUsernameError);
                             thisClient.Send(sendBuffer);
 
-                            server_logs.AppendText(username + "tried to add" + friendUsername + " as a friend who is not registered.\n");
+                            server_logs.AppendText(username + " tried to add " + friendUsername + " as a friend who is not registered.\n");
                         }
                         //initial checks are completed
 
-                        if ((username != friendUsername) && usernameExists == true)
+                        if ((username != friendUsername) && usernameExists == true && alreadyFriendsBool != true)
                         {
 
                             string friendLineString = username + "|" + friendUsername + "\n";
@@ -377,10 +401,24 @@ namespace Server
                                 file.WriteLine(friendLineString);
                             }
 
-                            string friendAddSuccess = friendUsername + "has been added as a friend!\n";
+                            string friendAddSuccess = friendUsername + " has been added as a friend!\n";
                             Byte[] sendBuffer = new Byte[1000000];
                             sendBuffer = Encoding.Default.GetBytes(friendAddSuccess);
                             thisClient.Send(sendBuffer);
+
+                            bool isOnline = socketDictionary.ContainsKey(friendUsername);
+
+                            if(isOnline)
+                            {
+                                Socket friendSocket = socketDictionary[friendUsername];
+
+                                string friendNotification = UsernameVar + " has added you as a friend!\n";
+                                Byte[] notificationBuffer = new Byte[1000000];
+                                notificationBuffer = Encoding.Default.GetBytes(friendNotification);
+                                friendSocket.Send(notificationBuffer);
+
+                            }
+
 
                             server_logs.AppendText(username + " has added " + friendUsername + " as a friend.\n");
                         }
@@ -492,6 +530,11 @@ namespace Server
 
                                 if (friendsList.Contains(usernameToken))
                                 {
+                                    string friendPostsString = "Showing all posts from friends:\n "  ;
+                                    Byte[] sendBuffer1 = new Byte[1000000];
+                                    sendBuffer1 = Encoding.Default.GetBytes(friendPostsString);
+                                    thisClient.Send(sendBuffer1);
+
                                     string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
 
                                     Byte[] sendBuffer = new Byte[1000000];

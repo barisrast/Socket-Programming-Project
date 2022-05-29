@@ -98,10 +98,13 @@ namespace Client
                         Thread receiveThread = new Thread(Receive);
                         receiveThread.Start();
 
+                        friend_list_listbox.Items.Clear();
                         string sendCodeString = "GET_FRIEND";
                         Byte[] sendCodeBuffer = new byte[1024];
                         sendCodeBuffer = Encoding.Default.GetBytes(sendCodeString);
                         clientSocket.Send(sendCodeBuffer);
+                        
+                        
                     }
 
 
@@ -146,7 +149,10 @@ namespace Client
                         
                         foreach (string item in friendsTokens)
                         {
-                            friend_list_listbox.Items.Add(item);
+                            if (item != "")
+                            {
+                                friend_list_listbox.Items.Add(item);
+                            }
 
                         }
 
@@ -287,6 +293,9 @@ namespace Client
             sendUsernameAndFriendBuffer = Encoding.Default.GetBytes(sendUsernameAndFriend);
             clientSocket.Send(sendUsernameAndFriendBuffer);
 
+            friend_list_listbox.Items.Clear();
+            send_message("GET_FRIEND");
+
             add_username_textbox.Clear();
         }
 
@@ -297,7 +306,9 @@ namespace Client
 
             string selectedFriend = friend_list_listbox.SelectedItem.ToString().Trim();
             send_message(selectedFriend);
-            
+            friend_list_listbox.Items.Clear();
+            send_message("GET_FRIEND");
+
         }
 
         private void button_friend_post_Click(object sender, EventArgs e)
