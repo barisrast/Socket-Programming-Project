@@ -326,15 +326,16 @@ namespace Server
                             }
                         }
                     }
+
                     else if (incomingMessage == "ADD_FRIEND")
                     {
-                        Byte[] usernamAndPostIDBuffer = new Byte[1024];
-                        thisClient.Receive(usernamAndPostIDBuffer);
-                        string usernameAndPostID = Encoding.Default.GetString(usernamAndPostIDBuffer);
-                        usernameAndPostID = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("\0"));
+                        Byte[] usernameAndFriendNameBuffer = new Byte[1024];
+                        thisClient.Receive(usernameAndFriendNameBuffer);
+                        string usernameAndFriendName = Encoding.Default.GetString(usernameAndFriendNameBuffer);
+                        usernameAndFriendName = usernameAndFriendName.Substring(0, usernameAndFriendName.IndexOf("\0"));
 
-                        string username = usernameAndPostID.Substring(0, usernameAndPostID.IndexOf("|"));
-                        string friendUsername = usernameAndPostID.Substring(usernameAndPostID.IndexOf("|") + 1);
+                        string username = usernameAndFriendName.Substring(0, usernameAndFriendName.IndexOf("|"));
+                        string friendUsername = usernameAndFriendName.Substring(usernameAndFriendName.IndexOf("|") + 1);
 
                         if (username == friendUsername)
                         {
@@ -369,8 +370,6 @@ namespace Server
                             }
                         }
 
-
-
                         bool usernameExists = false;
                         foreach (string line in File.ReadLines(@"../../user-db.txt", Encoding.UTF8))
                         {
@@ -389,12 +388,12 @@ namespace Server
 
                             server_logs.AppendText(username + " tried to add " + friendUsername + " as a friend who is not registered.\n");
                         }
-                        //initial checks are completed
 
+                        //initial checks are completed
                         if ((username != friendUsername) && usernameExists == true && alreadyFriendsBool != true)
                         {
 
-                            string friendLineString = username + "|" + friendUsername + "\n";
+                            string friendLineString = username + "|" + friendUsername;
 
                             using (StreamWriter file = new StreamWriter("../../friend-db.txt", append: true))
                             {
@@ -410,6 +409,7 @@ namespace Server
 
                             if(isOnline)
                             {
+                                // In order to refresh online clients' friend list, request sent
                                 Socket friendSocket = socketDictionary[friendUsername];
 
                                 string friendNotification = UsernameVar + " has added you as a friend!\n";
@@ -417,12 +417,18 @@ namespace Server
                                 notificationBuffer = Encoding.Default.GetBytes(friendNotification);
                                 friendSocket.Send(notificationBuffer);
 
+
+                                string getFriedRefresh = "GET_FRIEND_REFRESH";
+                                Byte[] getFriendRefreshBuffer = new Byte[1000000];
+                                getFriendRefreshBuffer = Encoding.Default.GetBytes(getFriedRefresh);
+                                friendSocket.Send(getFriendRefreshBuffer);
                             }
 
 
                             server_logs.AppendText(username + " has added " + friendUsername + " as a friend.\n");
                         }
                     }
+
                     else if (incomingMessage == "GET_FRIEND")
                     {
 
@@ -457,6 +463,7 @@ namespace Server
                         sendBuffer = Encoding.Default.GetBytes(finalFriendsString);
                         thisClient.Send(sendBuffer);
                     }
+
                     else if (incomingMessage == "REMOVE_FRIEND")
                     {
                         Byte[] removeFriendBuffer = new Byte[1024];
@@ -476,11 +483,30 @@ namespace Server
                                     string[] tokens = line.Split('|');
                                     if (((tokens[0] == UsernameVar) && (tokens[1] == removeFriendString)) || ((tokens[1] == UsernameVar) && (tokens[0] == removeFriendString)))
                                     {
-                                        string friendAddSuccess = removeFriendString + "has been removed from your friends!\n";
+                                        string friendAddSuccess = removeFriendString + " has been removed from your friend list!\n";
                                         Byte[] sendBuffer = new Byte[1000000];
                                         sendBuffer = Encoding.Default.GetBytes(friendAddSuccess);
                                         thisClient.Send(sendBuffer);
 
+                                       
+                                        bool isFriendOnline = socketDictionary.ContainsKey(removeFriendString);
+
+                                        if (isFriendOnline) {
+                                            // In order to refresh online clients' friend list, request sent
+                                            Socket friendSocket = socketDictionary[removeFriendString];
+
+                                            string friendNotification = "You have been removed from " + UsernameVar + "'s friend list!\n";
+                                            Byte[] friendNotificationBuffer = new Byte[1000000];
+                                            friendNotificationBuffer = Encoding.Default.GetBytes(friendNotification);
+                                            friendSocket.Send(friendNotificationBuffer);
+
+                                            string getFriendRefresh = "GET_FRIEND_REFRESH";
+                                            Byte[] getFriendRefreshBuffer = new Byte[1000000];
+                                            getFriendRefreshBuffer = Encoding.Default.GetBytes(getFriendRefresh);
+                                            friendSocket.Send(getFriendRefreshBuffer);
+                                        }
+
+                                        server_logs.AppendText(UsernameVar + " removed " + removeFriendString + " from friends.\n");
                                     }
                                     else
                                     {
@@ -490,6 +516,7 @@ namespace Server
                             }
                         }
                     }
+
                     else if (incomingMessage == "FRIEND_POSTS")
                     {
                         //following part is to get every friend of the user
@@ -512,10 +539,14 @@ namespace Server
                             }
                         }
 
+                        string friendPostsString = "\nShowing all posts from friends:\n";
+                        Byte[] sendBuffer1 = new Byte[1000000];
+                        sendBuffer1 = Encoding.Default.GetBytes(friendPostsString);
+                        thisClient.Send(sendBuffer1);
+
                         //following part is to get all posts of those friends
-
                         string[] postLines = File.ReadAllLines("../../post-db.txt");
-
+                        bool firstLine = true;
                         foreach (string line in postLines)
                         {
                             if(line != "")
@@ -530,11 +561,6 @@ namespace Server
 
                                 if (friendsList.Contains(usernameToken))
                                 {
-                                    string friendPostsString = "Showing all posts from friends:\n "  ;
-                                    Byte[] sendBuffer1 = new Byte[1000000];
-                                    sendBuffer1 = Encoding.Default.GetBytes(friendPostsString);
-                                    thisClient.Send(sendBuffer1);
-
                                     string postMessageString = "Username: " + usernameToken + "\n" + "PostID: " + postIdToken + "\n" + "Post: " + postTextToken + "\n" + "Time: " + postTimeToken + "\n\n";
 
                                     Byte[] sendBuffer = new Byte[1000000];
@@ -543,7 +569,7 @@ namespace Server
                                 }
                             }
                         }
-                        server_logs.AppendText("Showed all posts of" + UsernameVar + "\'s friends.\n");
+                        server_logs.AppendText("Showed all friends' posts for " + UsernameVar + ".\'s friends.\n");
 
                     }
                 }

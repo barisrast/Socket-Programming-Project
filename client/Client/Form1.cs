@@ -31,14 +31,7 @@ namespace Client
             Control.CheckForIllegalCrossThreadCalls = false;
             this.FormClosing += new FormClosingEventHandler(Form1_FormClosing);
             InitializeComponent();
-            
-          
-            logs.Enabled = false;
-            disconnect_button.Enabled = false;
-            post_Send_Button.Enabled = false;
-            all_posts_button.Enabled = false;
-            post_textbox.Enabled = false;
-
+           
         }
 
         private void connect_button_Click(object sender, EventArgs e)
@@ -141,12 +134,10 @@ namespace Client
                     string incomingMessage = Encoding.Default.GetString(buffer);
                     incomingMessage = incomingMessage.Substring(0, incomingMessage.IndexOf("\0"));
                     
-
+                    // GET_FRIEND response
                     if (incomingMessage != "" && incomingMessage[0] == '&')
-                    {
-                        
-                        string[] friendsTokens = incomingMessage.Split('&');
-                        
+                    {                 
+                        string[] friendsTokens = incomingMessage.Split('&');                       
                         foreach (string item in friendsTokens)
                         {
                             if (item != "")
@@ -155,13 +146,20 @@ namespace Client
                             }
 
                         }
+                    }
+                    // GET_FRIEND request from server
+                    else if (incomingMessage == "GET_FRIEND_REFRESH") {
+                        friend_list_listbox.Items.Clear();
+                        send_message("GET_FRIEND");
 
                     }
+                    // Output Messages
                     else
                     {
                         logs.AppendText(incomingMessage);
                     }
                 }
+
                 catch
                 {
                     if (!terminating)
@@ -178,7 +176,11 @@ namespace Client
                         my_post_button.Enabled = false;
                         post_id_textbox.Enabled = false;
                         delete_post_button.Enabled = false;
-                        
+
+                        add_friend_button.Enabled = false;
+                        add_username_textbox.Enabled = false;
+                        remove_friend_button.Enabled = false;
+                        button_friend_post.Enabled = false;
 
                         connect_button.BackColor = SystemColors.Control;
                         disconnect_button.BackColor = SystemColors.Control;
@@ -208,6 +210,11 @@ namespace Client
             my_post_button.Enabled = false;
             post_id_textbox.Enabled = false;
             delete_post_button.Enabled = false;
+
+            add_friend_button.Enabled = false;
+            add_username_textbox.Enabled = false;
+            remove_friend_button.Enabled = false;
+            button_friend_post.Enabled = false;
 
             connect_button.BackColor = SystemColors.Control;
             disconnect_button.BackColor = SystemColors.Control;
@@ -302,7 +309,6 @@ namespace Client
         private void remove_friend_button_Click(object sender, EventArgs e)
         {
             send_message("REMOVE_FRIEND");
-
 
             string selectedFriend = friend_list_listbox.SelectedItem.ToString().Trim();
             send_message(selectedFriend);
